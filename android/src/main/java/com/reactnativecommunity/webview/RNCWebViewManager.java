@@ -38,6 +38,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.util.Log;
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 
 import com.facebook.react.views.scroll.ScrollEvent;
 import com.facebook.react.views.scroll.ScrollEventType;
@@ -782,13 +785,75 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-      progressChangedFilter.setWaitingForCommandLoadUrl(true);
-      dispatchEvent(
+      activeUrl = url;
+      Log.d("<INICIS_TEST>", "URL : " + url);
+    /*
+    * Branching is required by URL. Loading the application and
+    * Loading the web page must be processed separately.
+    * If a certain application URL of the merchant is entered
+    * Please add additional conditions.
+    */
+    ReactContext reactContext = (ReactContext) view.getContext();
+
+    if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("javascript:")) {
+      Intent intent;
+      try {
+        intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+        Log.d("<INICIS_TEST>", "intent getDataString : " + intent.getDataString());
+      } catch (URISyntaxException ex) {
+        Log.e("<INICIS_TEST>", "URI syntax error : " + url + ":" + ex.getMessage());
+        return false;
+      }
+      try {
+        reactContext.startActivity(intent);
+      } catch (ActivityNotFoundException e) {
+        /* If your ISP application is not currently on your phone,
+        * To be processed through notification.
+        * Samsung Card and other safe clicks
+        * Because the card company's web page takes care of it
+        * WEBVIEW does not require any special processing.
+        */
+        if (url.startsWith("ispmobile://")) {
+          //Open the ISP application alert defined in onCreateDialog.
+          //(If there is no ISP application)
+          // showDialog(DIALOG_ISP);
+          return false;
+        } else if (url.startsWith("intent")) {
+          //Some card companies do not give intent:// format intent schema
+          //ex) Hyundai Card intent:hdcardappcardansimclick://
+          try {
+            Intent tempIntent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+            String strParams = tempIntent.getDataString();
+            Intent intent2 = new Intent(Intent.ACTION_VIEW);
+            intent2.setData(Uri.parse(strParams));
+            reactContext.startActivity(intent);
+            return true;
+          } catch (Exception error) {
+            error.printStackTrace();
+            Intent intent3 = null;
+            try {
+              intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+              Intent marketIntent = new Intent(Intent.ACTION_VIEW);
+              marketIntent.setData(Uri.parse("market://details?id=" + intent3.getPackage()));
+              reactContext.startActivity(marketIntent);
+            } catch (Exception e1) {
+              e1.printStackTrace();
+            }
+            return true;
+          }
+        }
+      }
+    }
+    else {
+      view.loadUrl(url);
+      return false;
+    }
+    dispatchEvent(
         view,
         new TopShouldStartLoadWithRequestEvent(
           view.getId(),
           createWebViewEvent(view, url)));
-      return true;
+    return true;
     }
 
 
