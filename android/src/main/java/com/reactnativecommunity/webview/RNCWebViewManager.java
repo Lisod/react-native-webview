@@ -84,6 +84,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.net.URISyntaxException;
 
 import javax.annotation.Nullable;
 
@@ -785,7 +786,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-      activeUrl = url;
+//       activeUrl = url;
       Log.d("<INICIS_TEST>", "URL : " + url);
     /*
     * Branching is required by URL. Loading the application and
