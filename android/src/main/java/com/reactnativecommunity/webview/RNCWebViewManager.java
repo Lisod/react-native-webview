@@ -808,7 +808,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         new TopShouldStartLoadWithRequestEvent(
           view.getId(),
           createWebViewEvent(view, url)));
-      return true
+      return true;
       }
       try {
         reactContext.startActivity(intent);
@@ -828,7 +828,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
             new TopShouldStartLoadWithRequestEvent(
             view.getId(),
             createWebViewEvent(view, url)));
-          return true
+          return true;
         } else if (url.startsWith("intent")) {
           //Some card companies do not give intent:// format intent schema
           //ex) Hyundai Card intent:hdcardappcardansimclick://
