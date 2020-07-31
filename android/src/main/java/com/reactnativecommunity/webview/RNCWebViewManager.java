@@ -863,6 +863,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
           createWebViewEvent(view, url)));
       return true;
     }
+    return true;
   }
 
     @Override
