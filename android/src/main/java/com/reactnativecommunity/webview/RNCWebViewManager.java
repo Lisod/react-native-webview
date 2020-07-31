@@ -833,7 +833,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
             error.printStackTrace();
             Intent intent3 = null;
             try {
-              intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+              intent3 = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
               Intent marketIntent = new Intent(Intent.ACTION_VIEW);
               marketIntent.setData(Uri.parse("market://details?id=" + intent3.getPackage()));
               reactContext.startActivity(marketIntent);
