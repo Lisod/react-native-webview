@@ -784,7 +784,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
           createWebViewEvent(webView, url)));
     }
 
-    @Override
+        @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
 //       activeUrl = url;
       Log.d("<INICIS_TEST>", "URL : " + url);
@@ -803,7 +803,12 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         Log.d("<INICIS_TEST>", "intent getDataString : " + intent.getDataString());
       } catch (URISyntaxException ex) {
         Log.e("<INICIS_TEST>", "URI syntax error : " + url + ":" + ex.getMessage());
-        return false;
+        dispatchEvent(
+        view,
+        new TopShouldStartLoadWithRequestEvent(
+          view.getId(),
+          createWebViewEvent(view, url)));
+      return true
       }
       try {
         reactContext.startActivity(intent);
@@ -818,7 +823,12 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
           //Open the ISP application alert defined in onCreateDialog.
           //(If there is no ISP application)
           // showDialog(DIALOG_ISP);
-          return false;
+          dispatchEvent(
+            view,
+            new TopShouldStartLoadWithRequestEvent(
+            view.getId(),
+            createWebViewEvent(view, url)));
+          return true
         } else if (url.startsWith("intent")) {
           //Some card companies do not give intent:// format intent schema
           //ex) Hyundai Card intent:hdcardappcardansimclick://
@@ -828,7 +838,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
             Intent intent2 = new Intent(Intent.ACTION_VIEW);
             intent2.setData(Uri.parse(strParams));
             reactContext.startActivity(intent);
-            return true;
+            return false;
           } catch (Exception error) {
             error.printStackTrace();
             Intent intent3 = null;
@@ -840,30 +850,20 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
             } catch (Exception e1) {
               e1.printStackTrace();
             }
-            return true;
+            return false;
           }
         }
       }
     }
     else {
-      view.loadUrl(url);
-      return false;
-    }
-    dispatchEvent(
+      dispatchEvent(
         view,
         new TopShouldStartLoadWithRequestEvent(
           view.getId(),
           createWebViewEvent(view, url)));
-    return true;
+      return true;
     }
-
-
-    @TargetApi(Build.VERSION_CODES.N)
-    @Override
-    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-      final String url = request.getUrl().toString();
-      return this.shouldOverrideUrlLoading(view, url);
-    }
+  }
 
     @Override
     public void onReceivedSslError(final WebView webView, final SslErrorHandler handler, final SslError error) {
