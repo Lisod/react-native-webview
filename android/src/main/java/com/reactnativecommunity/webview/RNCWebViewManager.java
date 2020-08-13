@@ -784,87 +784,79 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
           createWebViewEvent(webView, url)));
     }
 
-        @Override
+    @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-//       activeUrl = url;
       Log.d("<INICIS_TEST>", "URL : " + url);
-    /*
-    * Branching is required by URL. Loading the application and
-    * Loading the web page must be processed separately.
-    * If a certain application URL of the merchant is entered
-    * Please add additional conditions.
-    */
-    ReactContext reactContext = (ReactContext) view.getContext();
+      ReactContext reactContext = (ReactContext) view.getContext();
 
-    if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("javascript:")) {
-      Intent intent;
-      try {
-        intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-        Log.d("<INICIS_TEST>", "intent getDataString : " + intent.getDataString());
-      } catch (URISyntaxException ex) {
-        Log.e("<INICIS_TEST>", "URI syntax error : " + url + ":" + ex.getMessage());
-        dispatchEvent(
-        view,
-        new TopShouldStartLoadWithRequestEvent(
-          view.getId(),
-          createWebViewEvent(view, url)));
-      return true;
-      }
-      try {
-        reactContext.startActivity(intent);
-      } catch (ActivityNotFoundException e) {
-        /* If your ISP application is not currently on your phone,
-        * To be processed through notification.
-        * Samsung Card and other safe clicks
-        * Because the card company's web page takes care of it
-        * WEBVIEW does not require any special processing.
-        */
-        if (url.startsWith("ispmobile://")) {
-          //Open the ISP application alert defined in onCreateDialog.
-          //(If there is no ISP application)
-          // showDialog(DIALOG_ISP);
-          dispatchEvent(
-            view,
+      if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("javascript:")) {
+        Intent intent;
+        try {
+          intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+          Log.d("<INICIS_TEST>", "intent getDataString : " + intent.getDataString());
+        } catch (URISyntaxException ex) {
+          Log.e("<INICIS_TEST>", "URI syntax error : " + url + ":" + ex.getMessage());
+          dispatchEvent(view,
             new TopShouldStartLoadWithRequestEvent(
-            view.getId(),
-            createWebViewEvent(view, url)));
+              view.getId(),
+              createWebViewEvent(view, url)));
           return true;
-        } else if (url.startsWith("intent")) {
-          //Some card companies do not give intent:// format intent schema
-          //ex) Hyundai Card intent:hdcardappcardansimclick://
-          try {
-            Intent tempIntent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-            String strParams = tempIntent.getDataString();
-            Intent intent2 = new Intent(Intent.ACTION_VIEW);
-            intent2.setData(Uri.parse(strParams));
-            reactContext.startActivity(intent);
-            return false;
-          } catch (Exception error) {
-            error.printStackTrace();
-            Intent intent3 = null;
+          }
+        try {
+          reactContext.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+          /* If your ISP application is not currently on your phone,
+          * To be processed through notification.
+          * Samsung Card and other safe clicks
+          * Because the card company's web page takes care of it
+          * WEBVIEW does not require any special processing.
+          */
+          if (url.startsWith("ispmobile://")) {
+            //Open the ISP application alert defined in onCreateDialog.
+            //(If there is no ISP application)
+            // showDialog(DIALOG_ISP);
+            dispatchEvent(
+              view,
+              new TopShouldStartLoadWithRequestEvent(
+              view.getId(),
+              createWebViewEvent(view, url)));
+            return true;
+          } else if (url.startsWith("intent")) {
+            //Some card companies do not give intent:// format intent schema
+            //ex) Hyundai Card intent:hdcardappcardansimclick://
             try {
-              intent3 = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-              Intent marketIntent = new Intent(Intent.ACTION_VIEW);
-              marketIntent.setData(Uri.parse("market://details?id=" + intent3.getPackage()));
-              reactContext.startActivity(marketIntent);
-            } catch (Exception e1) {
-              e1.printStackTrace();
+              Intent tempIntent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+              String strParams = tempIntent.getDataString();
+              Intent intent_second_format = new Intent(Intent.ACTION_VIEW);
+              intent_second_format.setData(Uri.parse(strParams));
+              reactContext.startActivity(intent);
+              return false;
+            } catch (Exception error) {
+              error.printStackTrace();
+              Intent market_intent = null;
+              try {
+                market_intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+                Intent marketIntent = new Intent(Intent.ACTION_VIEW);
+                marketIntent.setData(Uri.parse("market://details?id=" + market_intent.getPackage()));
+                reactContext.startActivity(marketIntent);
+              } catch (Exception e1) {
+                e1.printStackTrace();
+              }
+              return false;
             }
-            return false;
           }
         }
       }
-    }
-    else {
-      dispatchEvent(
-        view,
-        new TopShouldStartLoadWithRequestEvent(
-          view.getId(),
-          createWebViewEvent(view, url)));
+      else {
+        dispatchEvent(
+          view,
+          new TopShouldStartLoadWithRequestEvent(
+            view.getId(),
+            createWebViewEvent(view, url)));
+        return true;
+      }
       return true;
     }
-    return true;
-  }
 
     @Override
     public void onReceivedSslError(final WebView webView, final SslErrorHandler handler, final SslError error) {
