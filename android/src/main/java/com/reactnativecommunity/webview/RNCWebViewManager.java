@@ -827,17 +827,17 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
             try {
               Intent tempIntent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
               String strParams = tempIntent.getDataString();
-              Intent intent_second_format = new Intent(Intent.ACTION_VIEW);
-              intent_second_format.setData(Uri.parse(strParams));
+              Intent intentSecond = new Intent(Intent.ACTION_VIEW);
+              intentSecond.setData(Uri.parse(strParams));
               reactContext.startActivity(intent);
               return false;
             } catch (Exception error) {
               error.printStackTrace();
               Intent market_intent = null;
               try {
-                market_intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+                marketIntentURI = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
                 Intent marketIntent = new Intent(Intent.ACTION_VIEW);
-                marketIntent.setData(Uri.parse("market://details?id=" + market_intent.getPackage()));
+                marketIntent.setData(Uri.parse("market://details?id=" + marketIntentURI.getPackage()));
                 reactContext.startActivity(marketIntent);
               } catch (Exception e1) {
                 e1.printStackTrace();
